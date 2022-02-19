@@ -7,5 +7,6 @@ then
         -o $INFLUXDB_ORG \
         -u $INFLUXDB_USER \
         -p $INFLUXDB_PASSWORD \
-        -b $INFLUXDB_BUCKET
+        -b $INFLUXDB_BUCKET \
+        -t $INFLUXDB_TOKEN
 fi
