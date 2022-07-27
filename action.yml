@@ -4,30 +4,30 @@ branding:
   icon: 'database'
   color: 'gray-dark'
 inputs:
-  influxdb_version:
+  version:
     description: 'Sets the version of InfluxDB to use (for example: 2.0.7). See https://portal.influxdata.com/downloads/ for versions. latest and nightly are also supported.'
     required: true
-  influxdb_start:
+  start:
     description: 'Set to false if you only need to use the cli tools without a locally running InfluxDB instance. If this is false, you can ignore the init parameters.'
     required: false
-    default: true
-  influxdb_org:
+    default: 'true'
+  org:
     description: 'The initial Organization of the InfluxDB instance.'
     required: false
     default: 'organization'
-  influxdb_user:
+  user:
     description: 'The initial User of the InfluxDB instance.'
     required: false
     default: 'user'
-  influxdb_password:
+  password:
     description: 'The initial Password of the InfluxDB instance.'
     required: false
     default: 'password'
-  influxdb_bucket:
+  bucket:
     description: 'The initial Bucket of the InfluxDB instance.'
     required: false
     default: 'bucket'
-  influxdb_token:
+  token:
     description: 'The initial API Token of the InfluxDB instance'
     required: false
     default: 'token'
@@ -35,19 +35,43 @@ runs:
   using: "composite"
   steps:
     - name: Download and Install InfluxDB
+      if: runner.os == 'Linux'
       run: |
-        export INFLUXDB_VERSION=${{inputs.influxdb_version}}
-        ${{ github.action_path }}/install-influxdb.sh
+        export INFLUXDB_VERSION=${{ inputs.version }}
+        ${{ github.action_path }}/install.sh
       shell: bash
+
     - name: Configure InfluxDB
+      if: runner.os == 'Linux'
       run: |
-        export INFLUXDB_START=${{inputs.influxdb_start}}
-        export INFLUXDB_ORG=${{inputs.influxdb_org}}
-        export INFLUXDB_USER=${{inputs.influxdb_user}}
-        export INFLUXDB_PASSWORD=${{inputs.influxdb_password}}
-        export INFLUXDB_BUCKET=${{inputs.influxdb_bucket}}
-        export INFLUXDB_TOKEN=${{inputs.influxdb_token}}
-        ${{ github.action_path }}/setup-influxdb.sh
+        export INFLUXDB_START=${{ inputs.start }}
+        export INFLUXDB_ORG=${{ inputs.org }}
+        export INFLUXDB_USER=${{ inputs.user }}
+        export INFLUXDB_PASSWORD=${{ inputs.password }}
+        export INFLUXDB_BUCKET=${{ inputs.bucket }}
+        export INFLUXDB_TOKEN=${{ inputs.token }}
+        ${{ github.action_path }}/setup.sh
         unset INFLUXDB_PASSWORD
         unset INFLUXDB_TOKEN
       shell: bash
+
+    - name: Download and Install InfluxDB
+      if: runner.os == 'Windows'
+      run: |
+        $INFLUXDB_VERSION = ${{ inputs.version }}
+        ${{ github.action_path }}/install.ps1
+      shell: pwsh
+
+    - name: Configure InfluxDB
+      if: runner.os == 'Linux'
+      run: |
+        export INFLUXDB_START=${{ inputs.start }}
+        export INFLUXDB_ORG=${{ inputs.org }}
+        export INFLUXDB_USER=${{ inputs.user }}
+        export INFLUXDB_PASSWORD=${{ inputs.password }}
+        export INFLUXDB_BUCKET=${{ inputs.bucket }}
+        export INFLUXDB_TOKEN=${{ inputs.token }}
+        ${{ github.action_path }}/setup.ps1
+        unset INFLUXDB_PASSWORD
+        unset INFLUXDB_TOKEN
+      shell: pwsh
